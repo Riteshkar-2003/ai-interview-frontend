@@ -1,0 +1,85 @@
+################################################################################
+# Judge0 v1.13.0 — Docker Compose
+# Self-hosted code execution sandbox for the AI Interview Preparation Platform.
+#
+# Usage:
+#   docker compose up -d
+#
+# Judge0 API will be available at http://localhost:2358
+# Health check: http://localhost:2358/system_info
+################################################################################
+
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL ───────────────────────────────────────────────────────────────
+  db:
+    image: postgres:13.0
+    env_file: judge0.conf
+    volumes:
+      - judge0_postgres_data:/var/lib/postgresql/data/
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U judge0 -d judge0"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ────────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:6.0
+    command: [
+      "redis-server",
+      "--requirepass", "${REDIS_PASSWORD:-YourRedisPassword123!}"
+    ]
+    env_file: judge0.conf
+    volumes:
+      - judge0_redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-YourRedisPassword123!}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Judge0 API Server ────────────────────────────────────────────────────────
+  server:
+    image: judge0/judge0:1.13.0
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    ports:
+      - "2358:2358"
+    privileged: true
+    restart: unless-stopped
+    env_file: judge0.conf
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:2358/system_info || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  # ── Judge0 Worker (executes submissions) ─────────────────────────────────────
+  worker:
+    image: judge0/judge0:1.13.0
+    command: ["./scripts/workers"]
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    privileged: true
+    restart: unless-stopped
+    env_file: judge0.conf
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  judge0_postgres_data:
+  judge0_redis_data:

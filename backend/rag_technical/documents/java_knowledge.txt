@@ -1,0 +1,24 @@
+Java Technical Interview Knowledge Base
+
+1. JVM Architecture & Platform Independence:
+Java code (.java) is compiled into platform-independent bytecode (.class) by javac. The Java Virtual Machine (JVM) interprets and Just-In-Time (JIT) compiles bytecode into native machine code.
+- JDK (Java Development Kit): Contains JRE plus development tools (compiler, debugger).
+- JRE (Java Runtime Environment): Contains JVM plus core Java class libraries.
+- JVM Memory Model: Heap (shared objects and instances), Stack (thread-specific method call frames and local primitives), Metaspace (class metadata, replaced PermGen), PC Register, Native Method Stack.
+
+2. Core OOP Principles in Java:
+- Encapsulation: Restricting direct access to data via private/protected fields and providing public getter/setter methods.
+- Inheritance: Subclasses inherit state and behavior using the 'extends' keyword. Java supports single class inheritance and multiple interface implementation.
+- Polymorphism: Compile-time polymorphism (Method Overloading) vs Runtime polymorphism (Method Overriding via virtual dispatch).
+- Abstraction: Abstract classes (can have state and partial implementations) vs Interfaces (contracts, support default/static methods since Java 8 and private methods since Java 9).
+
+3. Java Collections Framework:
+- List: ArrayList (dynamic array, fast O(1) random access by index, O(N) shift on insertion/deletion), LinkedList (doubly linked list, O(1) node insertion/deletion if pointer held, O(N) traversal).
+- Set: HashSet (backed by HashMap, O(1) average lookup, no order), TreeSet (Red-Black tree, O(log N) lookup, sorted), LinkedHashSet (maintains insertion order).
+- Map: HashMap (array of buckets with linked list transitioning to Red-Black tree when bucket length exceeds 8, O(1) average lookup), ConcurrentHashMap (segment-level locking/CAS operations for thread safety without global lock), TreeMap (sorted key navigation).
+
+4. Concurrency & Memory Management:
+- Thread creation: Extending Thread class or implementing Runnable/Callable interfaces. ExecutorService provides thread pool management.
+- Synchronization: synchronized keyword, ReentrantLock, volatile keyword (guarantees visibility across CPU caches and prevents instruction reordering).
+- Garbage Collection: Automatic memory reclamation using generational algorithms (Young Gen: Eden, Survivor S0/S1; Old Gen). Modern collectors include G1 GC, ZGC, and Shenandoah.
+- Equals vs ==: '==' compares reference addresses in memory, while '.equals()' tests value equality (must override hashCode() whenever overriding equals()).

@@ -1,0 +1,20 @@
+Common data structures used in coding interviews include:
+
+Arrays
+Strings
+Stacks
+Queues
+Linked Lists
+Hash Tables
+Trees
+Binary Search Trees
+Heaps
+Graphs
+
+Candidates should understand:
+insertion,
+deletion,
+search,
+traversal,
+time complexity,
+space complexity.

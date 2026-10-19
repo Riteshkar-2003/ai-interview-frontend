@@ -1,0 +1,24 @@
+C++ Technical Interview Knowledge Base
+
+1. Core Language & Architecture:
+C++ is a statically typed, compiled, multi-paradigm language offering direct memory access and low-level control with high-level abstractions ("Zero-overhead principle").
+- Compilation Pipeline: Preprocessing (#include, #define macros) -> Compilation (source code to assembly) -> Assembler (assembly to machine object code .o) -> Linker (combining object files and libraries into executable).
+- Memory Segments: Code/Text (instructions), Data (initialized globals/statics), BSS (uninitialized globals), Stack (automatic variables), Heap (dynamic memory via new/delete or malloc/free).
+
+2. Memory Management & Pointers:
+- Pointers vs References: A pointer stores a memory address and can be null or reassigned; a reference is an immutable alias to an existing object and cannot be null.
+- Smart Pointers (C++11 RAII):
+  * std::unique_ptr: Exclusive ownership of resource, non-copyable, movable.
+  * std::shared_ptr: Shared ownership with atomic reference counting.
+  * std::weak_ptr: Non-owning observer that prevents cyclic reference memory leaks.
+- RAII (Resource Acquisition Is Initialization): Resources (memory, file handles, mutex locks) are bound to object lifetime; destructor automatically frees resources when going out of scope.
+
+3. OOP & Polymorphism in C++:
+- Virtual Functions & VTable: Runtime polymorphism is achieved via virtual functions. The compiler creates a Virtual Method Table (vtable) for classes with virtual functions; each object has a hidden pointer (vptr) pointing to the vtable.
+- Pure Virtual Functions & Abstract Classes: A virtual function set to 0 (virtual void func() = 0) makes the class abstract, acting as an interface.
+- Virtual Destructor: Base classes with virtual functions must have a virtual destructor (~Base() = default) to prevent undefined behavior and memory leaks when deleting derived objects via base pointers.
+- Rule of Three / Rule of Five: If a class defines a destructor, it must define copy constructor and copy assignment operator (Rule of 3); in C++11, also move constructor and move assignment operator (Rule of 5).
+
+4. Standard Template Library (STL):
+- Containers: Sequence (std::vector, std::deque, std::list), Associative (std::set, std::map - Red-Black tree O(log N)), Unordered (std::unordered_set, std::unordered_map - Hash table O(1)).
+- Vector reallocation: Vectors double capacity upon reaching limit, copying/moving elements (amortized O(1) push_back).

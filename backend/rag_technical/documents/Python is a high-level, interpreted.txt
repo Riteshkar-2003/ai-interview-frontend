@@ -1,0 +1,124 @@
+Python is a high-level, interpreted programming language.
+
+Python supports object-oriented programming, functional programming,
+and procedural programming.
+
+Important Python data types include:
+list, tuple, dictionary, set, string, integer, float and boolean.
+
+A list is ordered and mutable.
+A tuple is ordered and immutable.
+A dictionary stores data using key-value pairs.
+A set stores unique values.
+
+Functions in Python are defined using the def keyword.
+
+Python supports exception handling using try, except, else and finally.
+
+Object-oriented programming in Python uses classes and objects.
+
+Important OOP concepts include:
+encapsulation,
+inheritance,
+polymorphism,
+and abstraction.
+
+Common Python interview questions:
+1. What is Python?
+2. What is the difference between a list and tuple?
+3. What is a dictionary?
+4. What is the difference between == and is?
+5. What are *args and **kwargs?
+6. What is exception handling?
+7. What is a class and object?
+8. What is inheritance?
+9. What is a decorator?
+10. What is a generator?
+
+
+
+SQL stands for Structured Query Language.
+
+SQL is used to store, retrieve, update and delete data in relational databases.
+
+Important SQL commands include:
+SELECT,
+INSERT,
+UPDATE,
+DELETE,
+CREATE,
+ALTER,
+DROP.
+
+A primary key uniquely identifies each record in a table.
+
+A foreign key creates a relationship between tables.
+
+Important SQL joins include:
+INNER JOIN,
+LEFT JOIN,
+RIGHT JOIN,
+FULL JOIN.
+
+WHERE filters rows before grouping.
+
+HAVING filters groups after GROUP BY.
+
+GROUP BY is used to group rows based on one or more columns.
+
+Common SQL interview questions:
+1. What is SQL?
+2. What is a primary key?
+3. What is a foreign key?
+4. What is the difference between WHERE and HAVING?
+5. What is an INNER JOIN?
+6. What is a LEFT JOIN?
+7. What is GROUP BY?
+8. What is normalization?
+9. What is an index?
+10. What is a subquery?
+
+
+
+Retrieval Augmented Generation, or RAG, combines information retrieval
+with large language models.
+
+A typical RAG system contains:
+1. Documents
+2. Document splitting
+3. Embeddings
+4. Vector database
+5. Similarity search
+6. Retrieved context
+7. Large language model
+
+Documents are divided into smaller chunks.
+
+An embedding model converts text into numerical vectors.
+
+A vector database stores and searches these vectors.
+
+ChromaDB is a vector database that can be used for semantic similarity search.
+
+During retrieval, the user's query is converted into an embedding.
+The system searches for similar document chunks.
+
+The retrieved chunks are provided to the LLM as context.
+
+RAG can reduce hallucination by grounding the model's response
+in retrieved information.
+
+Common RAG interview questions:
+1. What is RAG?
+2. Why is RAG used?
+3. What are embeddings?
+4. What is a vector database?
+5. What is semantic search?
+6. What is chunking?
+7. What is similarity search?
+8. What is the difference between RAG and fine-tuning?
+9. Why use ChromaDB?
+10. How does a RAG pipeline work?
+
+
+

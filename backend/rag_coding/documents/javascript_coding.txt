@@ -1,0 +1,18 @@
+JavaScript Coding Interview Implementation Guide & Patterns
+
+1. Standard Input / Output in Node.js:
+Use fs.readFileSync(0, 'utf-8') to handle competitive stdin inputs cleanly:
+
+
+2. Standard Data Structures & Operations in JS:
+- Arrays: push, pop, shift, unshift, slice, splice, map, filter, reduce.
+- Hash Map: new Map() provides key-value storage with any key types, O(1) average get/set/has.
+- Set: new Set() for O(1) deduplication and fast lookup.
+- Objects: Plain object {} for string-keyed dictionaries.
+- Sorting: arr.sort((a, b) => a - b) (numerical comparison, since default sorts lexicographically!).
+
+3. Common Patterns:
+- Two pointers for sorted arrays and palindromes.
+- Frequency map counting elements or characters.
+- Sliding window for maximum subarray/substring problems.
+- Recursion and backtracking with array mutation and backtracking.

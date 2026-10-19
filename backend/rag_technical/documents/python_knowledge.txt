@@ -1,0 +1,24 @@
+Python Technical Interview Knowledge Base
+
+1. Core Language & Architecture:
+Python is an interpreted, high-level, dynamically typed language created by Guido van Rossum. Code is compiled into bytecode (.pyc) and executed by the Python Virtual Machine (PVM), typically CPython.
+The Global Interpreter Lock (GIL) is a mutex in CPython that allows only one native thread to execute Python bytecode at once, preventing multi-core parallel CPU execution in threading, while I/O-bound tasks release the GIL. Multiprocessing is used to bypass the GIL for CPU-bound tasks.
+
+2. Data Types & Mutability:
+- Mutable types: list, dict, set, bytearray. They can be modified in place without changing memory address (id).
+- Immutable types: int, float, str, tuple, frozenset, bool, bytes. Any modification creates a new object in memory.
+- List vs. Tuple: Lists are dynamic arrays with over-allocation for O(1) amortized appends. Tuples are fixed-size immutable sequences with smaller memory footprints and hashability, allowing them to serve as dictionary keys.
+- Dictionary: Implemented using a hash table with open addressing and compact array storage (since Python 3.6+ maintaining insertion order). Average lookup, insert, and delete are O(1), worst-case O(N) during hash collisions.
+
+3. Object-Oriented Programming (OOP) in Python:
+- Classes and Objects: Classes define blueprints; instances are concrete objects created via __new__ and __init__.
+- Encapsulation: Python uses name mangling (prefixing attributes with '__') for private attributes, and single '_' as a convention for internal use.
+- Inheritance: Single and multiple inheritance supported. Method Resolution Order (MRO) is resolved using the C3 Linearization algorithm accessible via Class.__mro__.
+- Polymorphism: Implemented through duck typing ("If it walks like a duck and quacks like a duck, it's a duck").
+- Magic/Dunder Methods: __repr__, __str__, __len__, __iter__, __next__, __getitem__, __enter__, __exit__ (context managers).
+
+4. Advanced Concepts:
+- Decorators: Higher-order functions that take a function as input, add functionality via an inner wrapper, and return the wrapped function. Uses @functools.wraps to preserve function metadata.
+- Generators: Functions containing the 'yield' keyword that implement iterator protocol lazily, consuming O(1) memory during stream processing.
+- Memory Management & Garbage Collection: CPython uses reference counting as primary mechanism; cyclic garbage collector (generational GC) detects and cleans circular references.
+- Copying: Shallow copy (copy.copy) duplicates the outer container while referencing inner objects. Deep copy (copy.deepcopy) recursively copies all nested objects.

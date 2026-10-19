@@ -1,0 +1,32 @@
+Data Structures, Algorithms & OOP Technical Interview Knowledge Base
+
+1. Big-O Complexity Analysis:
+- Time Complexity: Measures how execution time scales with input size N.
+  * O(1) Constant: Array index lookup, Hash map lookup (average), push/pop on stack.
+  * O(log N) Logarithmic: Binary search, balanced BST operations (AVL, Red-Black).
+  * O(N) Linear: Traversing an unsorted array or linked list, linear search.
+  * O(N log N) Linearithmic: Merge sort, Heap sort, Quick sort (average).
+  * O(N^2) Quadratic: Bubble sort, Selection sort, nested loops.
+  * O(2^N) Exponential: Recursive Fibonacci, brute force power set.
+- Space Complexity: Measures auxiliary memory utilized during algorithm execution.
+
+2. Core Data Structures:
+- Arrays: Contiguous memory blocks, fast O(1) random access, slow O(N) arbitrary insertions/deletions due to element shifting.
+- Linked Lists: Nodes containing value and pointers. Singly vs Doubly linked. Fast O(1) insertion/deletion at known node, no random access (O(N) search). Cycle detection using Floyd's Tortoise and Hare algorithm.
+- Stacks & Queues: Stack (LIFO: push, pop, peek), Queue (FIFO: enqueue, dequeue). Deque supports operations at both ends.
+- Hash Tables: Keys hashed to array indices. Collision resolution: Chaining (linked lists or balanced trees) vs Open Addressing (linear/quadratic probing).
+- Trees & Graphs: Binary Search Tree (BST properties: left < root < right). Balanced BSTs (AVL, Red-Black tree). Heaps (Min-Heap / Max-Heap: priority queue, parent <= children or parent >= children). Traversals: Pre-order, In-order (sorted order for BST), Post-order, Level-order (BFS using queue). Graph traversals: DFS (using recursion or stack) and BFS (using queue).
+
+3. Algorithm Design Techniques:
+- Two Pointers: Opposite direction (sorted array pair sum) or fast/slow pointers (cycle detection, middle of linked list).
+- Sliding Window: Subarrays/substrings meeting constraint (max sum subarray of size K, longest substring without repeating characters).
+- Binary Search: Divide and conquer on monotonic search spaces (sorted array, square root, search in rotated sorted array).
+- Dynamic Programming: Optimal substructure + Overlapping subproblems. Top-down (Memoization) vs Bottom-up (Tabulation). Examples: 0/1 Knapsack, Longest Common Subsequence (LCS), Coin Change.
+- Greedy Algorithms: Makes locally optimal choice at each step (Dijkstra's shortest path, Kruskal/Prim MST, Activity selection).
+
+4. Object-Oriented Design (SOLID Principles):
+- S: Single Responsibility Principle (A class should have one, and only one, reason to change).
+- O: Open/Closed Principle (Software entities should be open for extension, but closed for modification).
+- L: Liskov Substitution Principle (Derived classes must be substitutable for their base classes).
+- I: Interface Segregation Principle (Clients should not be forced to depend on methods they do not use).
+- D: Dependency Inversion Principle (Depend on abstractions, not on concrete implementations).

@@ -1,0 +1,32 @@
+Java Coding Interview Implementation Guide & Patterns
+
+1. Standard Input / Output:
+Use Scanner or BufferedReader for competitive programming input:
+```java
+import java.util.*;
+import java.io.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        if (!sc.hasNext()) return;
+        int n = sc.nextInt();
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) arr[i] = sc.nextInt();
+        // Compute and print solution
+        System.out.println(solve(arr));
+    }
+}
+```
+
+2. Standard Data Structures in Java:
+- Dynamic Array: ArrayList<Integer> list = new ArrayList<>();
+- Hash Map: Map<Integer, Integer> map = new HashMap<>(); (getOrDefault, containsKey)
+- Hash Set: Set<String> set = new HashSet<>();
+- Priority Queue (Heap): PriorityQueue<Integer> minHeap = new PriorityQueue<>(); PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());
+- Deque: ArrayDeque<Integer> deque = new ArrayDeque<>(); (push, pop, offerFirst, pollLast)
+
+3. Essential Coding Algorithms in Java:
+- Two Pointers, Binary Search (Arrays.binarySearch), Sorting (Arrays.sort, Collections.sort with custom Comparator).
+- Graph Traversals: Queue<Integer> q = new LinkedList<>() for BFS, recursive DFS.
+- Matrix traversal and bounds checking.

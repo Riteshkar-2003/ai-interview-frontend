@@ -1,0 +1,23 @@
+JavaScript Technical Interview Knowledge Base
+
+1. JavaScript Runtime & Concurrency Model:
+JavaScript is a single-threaded, non-blocking, asynchronous, dynamically typed language.
+- Event Loop: Handles asynchronous callbacks. Call Stack executes synchronous code. When an async API completes (DOM, timers, network), its callback enters the Callback/Task Queue.
+- Microtask vs. Macrotask: Microtasks (Promises, process.nextTick, queueMicrotask, MutationObserver) have higher priority and run immediately after the current call stack clears, before any Macrotasks (setTimeout, setInterval, setImmediate, I/O).
+
+2. Scope, Closures & Execution Context:
+- Execution Context consists of Variable Environment, Lexical Environment, and 'this' binding.
+- Hoisting: var declarations are hoisted and initialized to undefined; let and const declarations are hoisted but remain uninitialized in the Temporal Dead Zone (TDZ). Function declarations are hoisted with their complete body.
+- Closures: An inner function that retains lexical access to variables in its outer enclosing scope even after the outer function has finished executing. Useful for data privacy, currying, and memoization.
+- 'this' Binding: Determined at call-time. Defaults to global object (or undefined in strict mode); object method call binds to the object; call/apply/bind explicitly bind context; arrow functions do not have their own 'this' and inherit it lexically from the enclosing scope.
+
+3. Prototypes & Prototypal Inheritance:
+- Every JavaScript object has an internal [[Prototype]] link (__proto__) pointing to its prototype object, terminating at Object.prototype (whose prototype is null).
+- Property lookup walks up the prototype chain until found or null is reached.
+- ES6 Classes are syntactic sugar over prototypal inheritance using constructor functions and prototypes.
+
+4. Asynchronous Patterns:
+- Callbacks: Prone to callback hell and inversion of control.
+- Promises: Objects representing eventual completion/failure with states: Pending, Fulfilled, Rejected. Handled via .then(), .catch(), .finally().
+- Async/Await: Syntactic sugar built on Promises and Generators providing synchronous-looking asynchronous control flow with try/catch error handling.
+- Event Delegation: Attaching a single event listener to a parent element using event bubbling (event.target) rather than listeners on numerous child elements.

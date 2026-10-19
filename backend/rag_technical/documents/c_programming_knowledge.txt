@@ -1,0 +1,25 @@
+C Programming Technical Interview Knowledge Base
+
+1. Core Language Fundamentals:
+C is a procedural, compiled, low-level language providing minimal abstraction, direct hardware access, and manual memory control, designed by Dennis Ritchie at Bell Labs.
+- Preprocessor Directives: Macros (#define), file inclusions (#include), conditional compilation (#ifdef, #ifndef).
+- Storage Classes: auto (local default), register (hint for CPU register), static (preserves value across calls, limits linkage to file scope), extern (declares global variable defined in another translation unit).
+
+2. Pointers & Memory Management:
+- Pointers: A variable holding the memory address of another variable. Operators: '&' (address-of), '*' (dereference).
+- Pointer Arithmetic: Incrementing a pointer adds sizeof(dataType) bytes, not 1 byte.
+- Dangling Pointers: Pointers pointing to memory that has been deallocated or freed.
+- Wild Pointers: Uninitialized pointers pointing to arbitrary memory locations.
+- Memory Leak: Failure to release dynamically allocated memory before losing all references to it.
+- Dynamic Memory Allocation (stdlib.h):
+  * malloc(size): Allocates uninitialized memory of given byte size.
+  * calloc(n, size): Allocates and zero-initializes memory for n elements.
+  * realloc(ptr, new_size): Resizes previously allocated memory block.
+  * free(ptr): Releases allocated memory back to heap (good practice: set ptr = NULL after free).
+
+3. Data Structures & System Programming:
+- Structures (struct): Groups different data types into a contiguous memory block. Subject to structure padding/alignment according to word boundaries.
+- Unions (union): Memory block shared among all member variables; size equals the largest member.
+- Arrays and Strings: Strings in C are null-terminated ('\0') character arrays. Standard library string functions: strlen, strcpy, strcmp, strcat (and safer bounds-checked strncpy/snprintf).
+- Function Pointers: Variables holding addresses of executable code functions; enables callback mechanisms and procedural polymorphism.
+- Pass by Value vs Pass by Reference: C only supports pass by value; passing by reference is simulated by passing pointer addresses.

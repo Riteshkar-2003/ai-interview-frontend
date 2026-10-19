@@ -1,0 +1,31 @@
+C Programming Coding Interview Implementation Guide & Patterns
+
+1. Standard Input / Output in C:
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main() {
+    int n;
+    if (scanf("%d", &n) != 1) return 0;
+    int *arr = (int *)malloc(n * sizeof(int));
+    if (!arr) return 1;
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    // Solve problem
+    // printf("%d\n", result);
+
+    free(arr);
+    return 0;
+}
+```
+
+2. Standard Data Structures & Memory in C:
+- Dynamic Array: malloc, realloc, and free for manual resizing.
+- String Processing: Null-terminated char arrays, strlen, strcmp, strcpy, snprintf.
+- Hash Table (in C): Implemented via array of buckets with linked list chaining or open addressing with simple polynomial hash function.
+- Sorting in C: qsort(arr, n, sizeof(int), compareFunc) where compareFunc is `int cmp(const void *a, const void *b) { return (*(int*)a - *(int*)b); }`.
+- Pointers and memory management: Always check malloc return != NULL, free every allocated block, avoid double free.
