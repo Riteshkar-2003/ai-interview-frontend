@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser, googleLogin } from "../../lib/api";
 import { motion } from "framer-motion";
@@ -9,7 +9,8 @@ import {
   Mail,
   Lock,
   Eye,
-  EyeOff
+  EyeOff,
+  Loader2
 } from "lucide-react";
 
 
@@ -22,6 +23,7 @@ export default function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const isProcessingAuth = useRef(false);
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -117,6 +119,7 @@ export default function Login() {
           }
 
           try {
+            isProcessingAuth.current = true;
             setGoogleLoading(true);
             setError("");
 
@@ -165,6 +168,7 @@ export default function Login() {
             );
 
           } finally {
+            isProcessingAuth.current = false;
             setGoogleLoading(false);
           }
         },
@@ -293,9 +297,13 @@ export default function Login() {
       if (googleButton) {
         googleButton.click();
       }
-
-      setGoogleLoading(false);
     }, 100);
+
+    setTimeout(() => {
+      if (!isProcessingAuth.current) {
+        setGoogleLoading(false);
+      }
+    }, 2500);
   };
 
 
@@ -579,26 +587,30 @@ export default function Login() {
           <motion.button
             type="button"
             onClick={handleGoogleLogin}
-            disabled={loading}
+            disabled={loading || googleLoading}
             whileHover={
-              !loading
+              !loading && !googleLoading
                 ? { scale: 1.02 }
                 : {}
             }
             whileTap={
-              !loading
+              !loading && !googleLoading
                 ? { scale: 0.98 }
                 : {}
             }
-            className="relative flex w-full items-center justify-center gap-5 rounded-lg bg-white py-3 font-semibold text-slate-700 shadow-lg shadow-violet-500/20 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="relative flex w-full items-center justify-center gap-3 rounded-lg bg-white py-3 font-semibold text-slate-700 shadow-lg shadow-violet-500/20 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-
-            <FcGoogle
-              size={22}
-            />
-            <span>
-              continue with google
-            </span>
+            {googleLoading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin text-violet-600" />
+                <span>Connecting with Google...</span>
+              </>
+            ) : (
+              <>
+                <FcGoogle size={22} />
+                <span>continue with google</span>
+              </>
+            )}
           </motion.button>
 
           {/* Hidden Google button container */}
@@ -615,7 +627,7 @@ export default function Login() {
 
 
           <p className="mt-6 text-center text-slate-500">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <button
               type="button"
               onClick={() => router.push("/signup")}
