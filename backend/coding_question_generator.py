@@ -314,6 +314,8 @@ def generate_coding_question(
         k=3
     )
 
+    rag_section = f"RAG CODING KNOWLEDGE BASE CONTEXT:\n{rag_coding_context}\n" if rag_coding_context else ""
+
     prompt = f"""
 You are an AI coding interview question generator.
 
@@ -332,7 +334,7 @@ Difficulty:
 Programming Language:
 {language}
 
-{f"RAG CODING KNOWLEDGE BASE CONTEXT:\n{rag_coding_context}\n" if rag_coding_context else ""}
+{rag_section}
 
 Requirements:
 1. Generate exactly ONE coding problem suitable for {language}.
