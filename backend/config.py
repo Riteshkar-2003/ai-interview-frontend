@@ -12,8 +12,10 @@ if not groq_api_key:
     )
 
 
+model_name = os.getenv("MODEL_NAME") or "openai/gpt-oss-120b"
+
 llm = ChatGroq(
-    model=os.getenv("MODEL_NAME"),
+    model=model_name,
     temperature=0.7,
     api_key=groq_api_key
 )
