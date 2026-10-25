@@ -1,6 +1,7 @@
 export const API_URL =
     process.env.NEXT_PUBLIC_API_URL ||
     "https://ai-interview-backend-e6p8.onrender.com";
+    
 
 function formatErrorMessage(detail, fallback) {
     if (!detail) return fallback;
