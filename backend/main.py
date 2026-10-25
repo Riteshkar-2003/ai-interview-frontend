@@ -40,13 +40,28 @@ def on_startup():
     init_db()
 
 
+@app.get("/")
+def root():
+    return {
+        "status": "online",
+        "message": "AI Interview Preparation API is running",
+        "docs": "/docs",
+        "version": "1.0.0"
+    }
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
         "http://localhost:3001",
         "https://ai-interview-platform-red-eta.vercel.app",
-        "https://ai-interview-platform-red-eta.vercel.app/",
+        "https://ai-interview-platform-red-eta.vercel.app",
     ],
     allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
