@@ -237,8 +237,23 @@ def create_admin_user(request: CreateAdminRequest):
             try: connection.close()
             except Exception: pass
 
+@app.get("/auth/signup")
+@app.get("/signup")
+def signup_info():
+    return {
+        "message": "Candidate signup endpoint. Please send a POST request with JSON body containing name, email, and password.",
+        "method": "POST",
+        "expected_payload": {
+            "name": "string",
+            "email": "user@example.com",
+            "password": "string (min 6 chars)"
+        },
+        "docs": "/docs"
+    }
+
 
 @app.post("/auth/signup")
+@app.post("/signup")
 def signup(request: SignupRequest):
 
     try:
@@ -299,7 +314,22 @@ def signup(request: SignupRequest):
         )
 
 
+@app.get("/auth/login")
+@app.get("/login")
+def login_info():
+    return {
+        "message": "Candidate login endpoint. Please send a POST request with JSON body containing email and password.",
+        "method": "POST",
+        "expected_payload": {
+            "email": "user@example.com",
+            "password": "string"
+        },
+        "docs": "/docs"
+    }
+
+
 @app.post("/auth/login")
+@app.post("/login")
 def login(request: LoginRequest):
 
     try:
