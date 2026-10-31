@@ -34,6 +34,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
+@app.get("/")
+@app.head("/")
+async def root():
+    return {
+        "status": "success",
+        "message": "AI Interview Preparation API is running"
+    }
 
 @app.on_event("startup")
 def on_startup():
