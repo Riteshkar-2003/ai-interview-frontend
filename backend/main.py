@@ -381,6 +381,54 @@ def login(request: LoginRequest):
 
 MAX_PDF_SIZE = 10 * 1024 * 1024  # 10 MB
 
+
+def is_valid_resume_content(text: str, resume_data: dict) -> bool:
+    """
+    Validates whether the extracted text and parsed JSON represent a genuine resume.
+    Rejects random documents, bills, receipts, books, blank/near-empty files, etc.
+    """
+    if not text or len(text.strip()) < 50:
+        return False
+
+    words = text.strip().split()
+    if len(words) < 25:
+        return False
+
+    text_lower = text.lower()
+
+    categories = {
+        "education": r"\b(education|university|college|school|degree|bachelor|master|b\.?tech|b\.?e\.?|bca|mca|b\.?sc|m\.?sc|phd|gpa|cgpa|academic|coursework|graduat(ed|ion)|diploma)\b",
+        "experience": r"\b(experience|employment|work\s+history|internship|intern|company|developer|engineer|analyst|specialist|consultant|manager|responsibilities|job|work)\b",
+        "skills": r"\b(skills|technical\s+skills|core\s+competencies|technologies|programming|languages|frameworks|tools|python|java|c\+\+|javascript|sql|html|css|git|react|angular|node|docker|aws)\b",
+        "projects": r"\b(projects?|personal\s+projects?|academic\s+projects?|key\s+projects?|implemented|developed|designed|architected|built)\b",
+        "contact_profile": r"\b(resume|curriculum\s+vitae|cv|summary|profile|objective|contact|email|phone|mobile|linkedin|github)\b"
+    }
+
+    matched_categories = 0
+    for cat, pattern in categories.items():
+        if re.search(pattern, text_lower):
+            matched_categories += 1
+
+    has_parsed_data = False
+    if isinstance(resume_data, dict):
+        skills = resume_data.get("skills") or []
+        langs = resume_data.get("programming_languages") or []
+        techs = resume_data.get("technologies") or []
+        projs = resume_data.get("projects") or []
+        interns = resume_data.get("internships") or []
+        exp = resume_data.get("work_experience") or []
+        edu = resume_data.get("education") or []
+
+        non_empty_sections = sum(1 for sec in [skills, langs, techs, projs, interns, exp, edu] if sec and len(sec) > 0)
+        if non_empty_sections >= 1:
+            has_parsed_data = True
+
+    if matched_categories >= 2 or (matched_categories >= 1 and has_parsed_data):
+        return True
+
+    return False
+
+
 @app.post("/resume/upload")
 async def upload_resume(
     file: UploadFile = File(...),
@@ -390,25 +438,25 @@ async def upload_resume(
         if not file.filename:
             raise HTTPException(
                 status_code=400,
-                detail="No file selected"
+                detail="Invalid file: No file selected."
             )
         filename = file.filename.lower()
         if not filename.endswith(".pdf"):
             raise HTTPException(
                 status_code=400,
-                detail="Only PDF files are supported"
+                detail="Invalid file: Only PDF resume files are supported."
             )
         file_bytes = await file.read()
         if not file_bytes:
             raise HTTPException(
                 status_code=400,
-                detail="Uploaded file is empty"
+                detail="Invalid file: Uploaded file is empty."
             )
         if len(file_bytes) > MAX_PDF_SIZE:
 
             raise HTTPException(
                 status_code=413,
-                detail="PDF file is too large. Maximum size is 10 MB."
+                detail="Invalid file: PDF file is too large. Maximum size is 10 MB."
             )
         reader = PdfReader(
             BytesIO(file_bytes)
@@ -425,13 +473,22 @@ async def upload_resume(
             raise HTTPException(
                 status_code=400,
                 detail=(
-                    "Could not extract text from PDF. "
-                    "Please upload a text-based PDF."
+                    "Invalid file: Could not extract text from PDF. "
+                    "Please upload a text-based resume PDF."
                 )
             )
         resume_data = extract_resume_information(
             resume_text
         )
+
+        if not is_valid_resume_content(resume_text, resume_data):
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Invalid file: The uploaded document does not appear to be a valid resume. "
+                    "Please upload a genuine resume PDF containing your education, skills, or experience."
+                )
+            )
 
         def check_coding_skills_eligibility(rdata: dict, rtext: str = "") -> dict:
             allowed = ["Python", "Java", "JavaScript", "C++", "C"]

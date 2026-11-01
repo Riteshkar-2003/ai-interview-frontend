@@ -804,6 +804,7 @@ const handleKeyDown = (e) => {
             "",
           submittedQuestionNumber: questionNumber,
           submittedTitle: question.title,
+          submittedDifficulty: difficulty,
         });
       }
 
@@ -814,36 +815,14 @@ const handleKeyDown = (e) => {
 
       if (data.next_question) {
         const prevNumber = questionNumber;
-
-        const newNumber =
-          data.question_number ||
-          prevNumber + 1;
-
-        const newDiff =
-          data.next_difficulty ||
-          difficulty;
-
-        setQuestion(data.next_question);
-        setDifficulty(newDiff);
-        setQuestionNumber(newNumber);
+        const newNumber = data.question_number || prevNumber + 1;
+        const newDiff = data.next_difficulty || difficulty;
 
         const summaryText = data.test_summary
           ? `Question ${prevNumber} submitted! Passed ${data.test_summary.total_passed}/${data.test_summary.total_tests} test cases (${data.test_summary.pass_rate}%). Next: Question ${newNumber} (${newDiff}).`
           : `Question ${prevNumber} submitted! Difficulty adapted to ${newDiff}. Now on Question ${newNumber}.`;
 
         setStatusNotification(summaryText);
-
-        if (data.next_question.starter_code) {
-          setCode(data.next_question.starter_code);
-        } else {
-          setCode(STARTER_CODES[language] || STARTER_CODES.python);
-        }
-        setResult(null);
-
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
       }
     } catch (error) {
       console.error("Submit error:", error);
@@ -2399,7 +2378,7 @@ const handleKeyDown = (e) => {
                     </div>
 
                     <button
-                      onClick={() => setSubmissionModalData(null)}
+                      onClick={handleProceedToNext}
                       className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
                     >
                       <X className="w-5 h-5 text-white" />
@@ -2408,6 +2387,44 @@ const handleKeyDown = (e) => {
 
                  
                   <div className="p-6 overflow-y-auto space-y-6">
+                    {submissionModalData.next_difficulty && (
+                      <div
+                        className={`p-4 rounded-2xl border flex items-center justify-between gap-3 text-xs ${
+                          (submissionModalData.next_difficulty || "").toLowerCase() !==
+                          (submissionModalData.submittedDifficulty || difficulty || "").toLowerCase()
+                            ? "bg-amber-50/90 border-amber-300 text-amber-950 shadow-sm"
+                            : "bg-slate-50 border-slate-200 text-slate-800"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center shrink-0">
+                            <Sparkles className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <span className="font-bold text-slate-900 block sm:inline">
+                              Adaptive Level Calibration:
+                            </span>
+                            <span className="ml-0 sm:ml-1 text-slate-700">
+                              {(submissionModalData.next_difficulty || "").toLowerCase() !==
+                              (submissionModalData.submittedDifficulty || difficulty || "").toLowerCase()
+                                ? `Performance analyzed — adaptive level calibrated from ${submissionModalData.submittedDifficulty || difficulty} to ${submissionModalData.next_difficulty}.`
+                                : `Performance maintained at ${submissionModalData.next_difficulty}.`}
+                            </span>
+                          </div>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-xl text-xs font-bold uppercase tracking-wider shrink-0 ${
+                            (submissionModalData.next_difficulty || "").toLowerCase() === "easy"
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                              : (submissionModalData.next_difficulty || "").toLowerCase() === "medium"
+                              ? "bg-amber-100 text-amber-800 border border-amber-200"
+                              : "bg-red-100 text-red-800 border border-red-200"
+                          }`}
+                        >
+                          Next: {submissionModalData.next_difficulty}
+                        </span>
+                      </div>
+                    )}
                     {submissionModalData.test_summary && (
                       <>
                        

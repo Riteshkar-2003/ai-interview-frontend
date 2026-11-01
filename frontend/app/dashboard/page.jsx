@@ -183,10 +183,28 @@ export default function Dashboard() {
             !file.name.toLowerCase().endsWith(".pdf")
         ) {
             setError(
-                "Please upload a valid PDF file. (Backend requires PDF format)."
+                "Invalid file: Please upload a valid resume in PDF format."
             );
-
             setResumeFile(null);
+            event.target.value = "";
+            return;
+        }
+
+        if (file.size === 0) {
+            setError(
+                "Invalid file: The selected file is empty. Please upload a valid resume PDF."
+            );
+            setResumeFile(null);
+            event.target.value = "";
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            setError(
+                "Invalid file: File size exceeds the 10 MB limit."
+            );
+            setResumeFile(null);
+            event.target.value = "";
             return;
         }
 
@@ -342,10 +360,15 @@ export default function Dashboard() {
                 err
             );
 
-            setError(
-                err.message ||
-                "Failed to start interview. Please try again."
-            );
+            const msg = err.message || "Invalid file: Failed to process resume. Please upload a valid resume.";
+            setError(msg);
+            if (msg.toLowerCase().includes("invalid file") || msg.toLowerCase().includes("resume")) {
+                setResumeFile(null);
+                setHasExistingResume(false);
+                setExistingResumeName("");
+                sessionStorage.removeItem("resumeData");
+                sessionStorage.removeItem("resumeFileName");
+            }
         } finally {
             setLoading(false);
         }

@@ -723,25 +723,42 @@ def get_fallback_question(difficulty: str = "Easy", language: str = "python", pr
         "examples": [{"input": "5\n3 1 4 1 5", "output": "5 1", "explanation": "5 is maximum, 1 is minimum."}]
     }
 
-    catalog = [p1, p2, p3, p4, p5]
+    p1["difficulty"] = "Easy"
+    p2["difficulty"] = "Easy"
+    p3["difficulty"] = "Medium"
+    p4["difficulty"] = "Hard"
+    p5["difficulty"] = "Easy"
+
+    diff_lower = (difficulty or "Easy").strip().lower()
+    if diff_lower == "hard":
+        catalog = [p4, p3, p2, p5, p1]
+    elif diff_lower == "medium":
+        catalog = [p3, p4, p2, p1, p5]
+    else:
+        catalog = [p1, p2, p5, p3, p4]
 
     prev_normalized = [str(p).strip().lower() for p in (previous_questions or []) if p]
 
     # Select first question from catalog whose title has not been asked yet
     for candidate in catalog:
         if candidate["title"].strip().lower() not in prev_normalized:
-            return candidate
+            res = dict(candidate)
+            res["difficulty"] = difficulty
+            return res
 
     # If all in catalog have been asked, rotate based on count
     pick_idx = len(prev_normalized) % len(catalog)
-    return catalog[pick_idx]
+    res = dict(catalog[pick_idx])
+    res["difficulty"] = difficulty
+    return res
 
 
 def generate_coding_question(
     resume_text: str,
     difficulty: str = "Easy",
     language: str = "python",
-    previous_questions: list = None
+    previous_questions: list = None,
+    candidate_performance: dict = None
 ):
     prev_list_display = ""
     if previous_questions:
@@ -780,6 +797,29 @@ def generate_coding_question(
 
     rag_section = f"RAG CODING KNOWLEDGE BASE CONTEXT:\n{rag_coding_context}\n" if rag_coding_context else ""
 
+    perf_context = ""
+    if candidate_performance:
+        prev_d = candidate_performance.get("previous_difficulty", "Hard")
+        adapt_d = candidate_performance.get("adapted_difficulty", difficulty)
+        p_passed = candidate_performance.get("tests_passed", 0)
+        p_total = candidate_performance.get("total_tests", 0)
+        p_rate = candidate_performance.get("pass_rate", 0)
+        p_all = candidate_performance.get("all_passed", False)
+        p_feedback = candidate_performance.get("feedback", "")
+        p_improvements = candidate_performance.get("improvements", [])
+        p_imp_text = ", ".join(p_improvements) if isinstance(p_improvements, list) else str(p_improvements)
+
+        perf_context = f"""
+CANDIDATE ANSWER PERFORMANCE ANALYSIS:
+- Previous Problem Difficulty: {prev_d}
+- Test Cases Passed: {p_passed} / {p_total} ({p_rate}%)
+- Answer Correctness: {'Candidate struggled and could not answer correctly.' if not p_all else 'Candidate answered correctly.'}
+- Evaluator Feedback on Answer: {p_feedback}
+- Candidate Growth Areas: {p_imp_text}
+- ADAPTIVE LEVEL DIRECTIVE: Difficulty has been calibrated to '{adapt_d}'.
+  Analyze the candidate's prior performance. Since the candidate {'could not solve the previous ' + prev_d + ' question correctly' if not p_all else 'performed well'}, create a {adapt_d} difficulty question under '{chosen_topic}' specifically tailored to assess their understanding of core concepts and rebuild algorithmic confidence without repeating their prior stumbling blocks.
+"""
+
     prompt = f"""You are an expert technical coding interview question designer.
 
 Generate ONE coding problem for {language} matching difficulty '{difficulty}'.
@@ -787,7 +827,7 @@ Target algorithmic domain: {chosen_topic}.
 
 Candidate Resume:
 {clean_resume}
-
+{perf_context}
 Difficulty: {difficulty}
 Language: {language}
 
@@ -940,6 +980,9 @@ Return exactly this JSON schema:
     question["sample_test_cases"] = normalized_samples
     question["hidden_test_cases"] = normalized_hidden
     question["examples"] = examples
+
+    if not question.get("difficulty"):
+        question["difficulty"] = difficulty
 
     if not question.get("starter_code"):
         question["starter_code"] = get_default_starter_code(language)

@@ -87,26 +87,66 @@ def sanitize_question_for_client(question: Any) -> Any:
 
 
 
-def determine_next_difficulty(current_difficulty: str, evaluation: dict) -> str:
+def determine_next_difficulty(
+    current_difficulty: str,
+    evaluation: dict,
+    test_summary: dict = None
+) -> str:
+    """
+    Adaptive difficulty determination based on algorithmic performance:
+    - If the candidate cannot answer correctly (test cases failed, execution errors,
+      pass rate < 70%, or low score < 6.5):
+      DECREASE the adaptive level (Hard -> Medium, Medium -> Easy).
+    - If the candidate answers correctly with strong performance (all tests passed or
+      pass rate >= 80%, and overall score >= 7.5):
+      INCREASE the adaptive level (Easy -> Medium, Medium -> Hard).
+    - Otherwise maintain the current level.
+    """
     difficulties = ["Easy", "Medium", "Hard"]
-    norm_diff = (current_difficulty or "Easy").capitalize()
+    norm_diff = (current_difficulty or "Easy").strip().capitalize()
     try:
         idx = difficulties.index(norm_diff)
     except ValueError:
         idx = 0
 
-    score = 5.0
+    overall_score = 5.0
+    correctness_score = 5.0
     if isinstance(evaluation, dict):
-        raw_score = evaluation.get("overall_score", 5)
         try:
-            score = float(raw_score)
+            overall_score = float(evaluation.get("overall_score", 5.0))
         except (ValueError, TypeError):
-            score = 5.0
+            overall_score = 5.0
+        try:
+            correctness_score = float(evaluation.get("correctness_score", overall_score))
+        except (ValueError, TypeError):
+            correctness_score = overall_score
 
-    if score >= 7.0 and idx < len(difficulties) - 1:
+    pass_rate = 100.0
+    all_passed = True
+    total_tests = 0
+    total_passed = 0
+    if isinstance(test_summary, dict):
+        total_tests = int(test_summary.get("total_tests", 0))
+        total_passed = int(test_summary.get("total_passed", 0))
+        pass_rate = float(test_summary.get("pass_rate", 100.0))
+        all_passed = bool(test_summary.get("all_passed", True))
+
+    cannot_answer_correctly = False
+    if total_tests > 0:
+        if not all_passed or total_passed < total_tests or pass_rate < 70.0:
+            cannot_answer_correctly = True
+
+    if correctness_score < 6.5 or overall_score < 6.5:
+        cannot_answer_correctly = True
+
+    if cannot_answer_correctly:
+        if idx > 0:
+            return difficulties[idx - 1]
+        return difficulties[0]
+
+    if (all_passed and pass_rate >= 80.0 and overall_score >= 7.5) and idx < len(difficulties) - 1:
         return difficulties[idx + 1]
-    elif score <= 4.0 and idx > 0:
-        return difficulties[idx - 1]
+
     return difficulties[idx]
 
 
@@ -423,7 +463,8 @@ def submit_coding_answer(request: SubmitCodingRequest):
 
         next_diff = determine_next_difficulty(
             current_difficulty=request.difficulty or "Easy",
-            evaluation=evaluation
+            evaluation=evaluation,
+            test_summary=test_summary
         )
 
         if user_key not in user_coding_sessions:
@@ -509,11 +550,25 @@ def submit_coding_answer(request: SubmitCodingRequest):
 
         next_q_num = answers_count + 1
 
+        candidate_perf = {
+            "previous_difficulty": request.difficulty or "Easy",
+            "adapted_difficulty": next_diff,
+            "total_tests": total_tests,
+            "tests_passed": total_passed,
+            "pass_rate": pass_rate,
+            "all_passed": all_passed,
+            "feedback": evaluation.get("feedback", "") if isinstance(evaluation, dict) else "",
+            "improvements": evaluation.get("improvements", []) if isinstance(evaluation, dict) else [],
+            "overall_score": evaluation.get("overall_score", 0) if isinstance(evaluation, dict) else 0,
+            "correctness_score": evaluation.get("correctness_score", 0) if isinstance(evaluation, dict) else 0,
+        }
+
         next_question = generate_coding_question(
             resume_text=resume_text,
             difficulty=next_diff,
             language=request.language,
-            previous_questions=prev_questions
+            previous_questions=prev_questions,
+            candidate_performance=candidate_perf
         )
 
        
