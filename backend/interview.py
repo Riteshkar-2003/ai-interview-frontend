@@ -1,3 +1,4 @@
+import re
 from langchain_core.messages import SystemMessage, HumanMessage
 from config import llm
 import json
@@ -252,27 +253,50 @@ Do not invent information.
 If information is missing, return an empty list.
 """
 
-    response = llm.invoke([
-        SystemMessage(
-            content="You are an expert resume parser. Return only JSON."
-        ),
-        HumanMessage(content=prompt)
-    ])
+    result = None
+    try:
+        response = llm.invoke([
+            SystemMessage(
+                content="You are an expert resume parser. Return only JSON."
+            ),
+            HumanMessage(content=prompt)
+        ])
+        result = safe_json_loads(
+            response.content,
+            default=EMPTY_RESUME.copy()
+        )
+    except Exception as llm_err:
+        print("[WARN] LLM resume extraction failed:", repr(llm_err))
+        result = EMPTY_RESUME.copy()
 
-    result = safe_json_loads(
-        response.content,
-        default=EMPTY_RESUME.copy()
-    )
+    if not isinstance(result, dict):
+        result = EMPTY_RESUME.copy()
 
    
     for key, default_value in EMPTY_RESUME.items():
 
-        if key not in result:
+        if key not in result or result[key] is None:
             result[key] = (
                 default_value.copy()
                 if isinstance(default_value, list)
                 else default_value
             )
+
+    if not result.get("skills") and not result.get("programming_languages"):
+        common_langs = ["Python", "Java", "JavaScript", "C++", "C", "TypeScript", "SQL"]
+        detected = []
+        for lang in common_langs:
+            if lang == "C":
+                pat = r"\b(c\s*programming|c\s*language|ansi\s*c)\b"
+            elif lang == "C++":
+                pat = r"(\bc\+\+|\bcpp\b)"
+            else:
+                pat = rf"\b{re.escape(lang)}\b"
+            if re.search(pat, resume_text, re.IGNORECASE):
+                detected.append(lang)
+        if detected:
+            result["programming_languages"] = detected
+            result["skills"] = detected.copy()
 
     return result
 

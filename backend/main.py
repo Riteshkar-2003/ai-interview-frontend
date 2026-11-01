@@ -524,7 +524,7 @@ async def upload_resume(
         )
         raise HTTPException(
             status_code=500,
-            detail="Failed to process resume"
+            detail=f"Failed to process resume: {str(e)}"
         )
     finally:
         await file.close()

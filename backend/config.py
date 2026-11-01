@@ -12,9 +12,19 @@ if not groq_api_key:
     )
 
 
-# Valid Groq model — "llama-3.3-70b-versatile" is the recommended default.
-# Override via MODEL_NAME env var if needed.
-model_name = os.getenv("MODEL_NAME") or "llama-3.3-70b-versatile"
+def get_groq_model_name() -> str:
+    """
+    Returns a guaranteed valid Groq model name.
+    If MODEL_NAME is unset or contains OpenAI / deprecated identifiers
+    like 'openai/gpt-oss-120b', automatically falls back to 'llama-3.3-70b-versatile'.
+    """
+    raw = (os.getenv("MODEL_NAME") or "").strip()
+    if not raw or "gpt-oss" in raw.lower() or raw.lower().startswith("openai/") or "120b" in raw.lower():
+        return "llama-3.3-70b-versatile"
+    return raw
+
+
+model_name = get_groq_model_name()
 
 llm = ChatGroq(
     model=model_name,

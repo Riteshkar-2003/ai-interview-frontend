@@ -4,6 +4,7 @@ import re
 
 from groq import Groq
 from dotenv import load_dotenv
+from config import get_groq_model_name
 
 load_dotenv()
 
@@ -70,7 +71,7 @@ Scoring:
 """
 
     response = client.chat.completions.create(
-        model=os.getenv("MODEL_NAME") or "llama-3.3-70b-versatile",
+        model=get_groq_model_name(),
         messages=[
             {
                 "role": "system",

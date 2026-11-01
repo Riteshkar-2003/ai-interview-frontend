@@ -4,6 +4,7 @@ import os
 from typing import Optional, Dict, Any, List
 from dotenv import load_dotenv
 from groq import Groq
+from config import get_groq_model_name
 from rag_coding.retriever import retrieve_coding_knowledge
 
 load_dotenv()
@@ -404,7 +405,7 @@ Return exactly this JSON structure:
  
     try:
         response = client.chat.completions.create(
-            model=os.getenv("MODEL_NAME") or "llama-3.3-70b-versatile",
+            model=get_groq_model_name(),
             messages=[
                 {
                     "role": "system",
@@ -436,7 +437,7 @@ Return exactly this JSON structure:
         try:
             print("Retrying coding question generation with flexible plain JSON format...")
             retry_resp = client.chat.completions.create(
-                model=os.getenv("MODEL_NAME") or "llama-3.3-70b-versatile",
+                model=get_groq_model_name(),
                 messages=[
                     {
                         "role": "system",
