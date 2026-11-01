@@ -480,9 +480,32 @@ def submit_coding_answer(request: SubmitCodingRequest):
         )
 
         resume_text = request.resume_text or session_meta.get("resume_text", "")
-        prev_questions = session_meta.get("previous_questions", [])
-        if q_title not in prev_questions:
+        prev_questions = list(session_meta.get("previous_questions", []))
+        if q_title and q_title not in prev_questions:
             prev_questions.append(q_title)
+
+        # Database recovery of past questions to prevent duplicate questions across container restarts
+        if request.user_id:
+            try:
+                conn = get_connection()
+                cur = conn.cursor(dictionary=True)
+                cur.execute(
+                    """
+                    SELECT cq.title 
+                    FROM coding_submissions cs
+                    JOIN coding_questions cq ON cs.question_id = cq.id
+                    WHERE cs.user_id = %s
+                    """,
+                    (request.user_id,)
+                )
+                for r in cur.fetchall():
+                    t = r.get("title")
+                    if t and t not in prev_questions:
+                        prev_questions.append(t)
+                cur.close()
+                conn.close()
+            except Exception as db_rec_err:
+                print("[WARN] Could not recover previous questions from DB:", db_rec_err)
 
         next_q_num = answers_count + 1
 

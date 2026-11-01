@@ -31,60 +31,56 @@ export default function InterviewPage() {
         if (hasStartedRef.current) return;
         hasStartedRef.current = true;
 
-        const storedResume = sessionStorage.getItem("resumeData");
-        const storedDifficulty = sessionStorage.getItem("difficulty");
+        async function initSession() {
+            const storedResume = sessionStorage.getItem("resumeData");
+            const storedDifficulty = sessionStorage.getItem("difficulty");
 
-        if (
-            !storedResume ||
-            storedResume === "undefined" ||
-            storedResume === "null"
-        ) {
-            console.error("RESUME DATA NOT FOUND");
-            router.push("/dashboard");
-            return;
-        }
-
-        try {
-            const parsedResume = JSON.parse(storedResume);
-
-            if (!parsedResume) {
-                throw new Error("Resume data is empty");
+            if (
+                !storedResume ||
+                storedResume === "undefined" ||
+                storedResume === "null"
+            ) {
+                console.error("RESUME DATA NOT FOUND");
+                router.push("/dashboard");
+                return;
             }
 
-            setResumeData(parsedResume);
+            try {
+                const parsedResume = JSON.parse(storedResume);
+                if (!parsedResume) {
+                    throw new Error("Resume data is empty");
+                }
 
-            const selectedDifficulty = storedDifficulty || "Easy";
-            setDifficulty(selectedDifficulty);
+                const selectedDifficulty = storedDifficulty || "Easy";
+                setResumeData(parsedResume);
+                setDifficulty(selectedDifficulty);
 
-            generateFirstQuestion(parsedResume, selectedDifficulty);
-        } catch (error) {
-            console.error("INVALID RESUME DATA:", error);
-            sessionStorage.removeItem("resumeData");
-            sessionStorage.removeItem("resumeFileName");
-            router.push("/dashboard");
+                setLoadingFirstQuestion(true);
+                try {
+                    const data = await getFirstQuestion(parsedResume, selectedDifficulty);
+                    if (data?.question) {
+                        setQuestion(data.question);
+                    } else {
+                        throw new Error("No question returned");
+                    }
+                } catch (error) {
+                    console.error("FIRST QUESTION ERROR:", error);
+                    const skills = parsedResume?.skills || parsedResume?.programming_languages || ["software engineering"];
+                    const skill = Array.isArray(skills) && skills.length > 0 ? skills[0] : "your primary programming language";
+                    setQuestion(`To begin our interview, could you walk me through your experience with ${skill} and describe a project where you applied it?`);
+                } finally {
+                    setLoadingFirstQuestion(false);
+                }
+            } catch (error) {
+                console.error("INVALID RESUME DATA:", error);
+                sessionStorage.removeItem("resumeData");
+                sessionStorage.removeItem("resumeFileName");
+                router.push("/dashboard");
+            }
         }
+
+        initSession();
     }, [router]);
-
-    const generateFirstQuestion = async (resume, selectedDifficulty) => {
-        try {
-            setLoadingFirstQuestion(true);
-            const data = await getFirstQuestion(resume, selectedDifficulty);
-
-            if (!data?.question) {
-                throw new Error("Backend did not return a question");
-            }
-
-            setQuestion(data.question);
-        } catch (error) {
-            console.error("FIRST QUESTION ERROR:", error);
-            // Graceful fallback question so the user is never stuck
-            const skills = resume?.skills || resume?.programming_languages || ["software engineering"];
-            const skill = Array.isArray(skills) && skills.length > 0 ? skills[0] : "your primary programming language";
-            setQuestion(`To begin our interview, could you walk me through your experience with ${skill} and describe a project where you applied it?`);
-        } finally {
-            setLoadingFirstQuestion(false);
-        }
-    };
 
     const submitAnswer = async () => {
         if (!answer.trim() || evaluatingAnswer) {
@@ -98,7 +94,7 @@ export default function InterviewPage() {
         try {
             setEvaluatingAnswer(true);
 
-            // 1. Evaluate the answer and record to database
+            // 1. Evaluate answer and record in DB
             const data = await analyzeAnswer(
                 currentQ,
                 currentAns,
@@ -152,7 +148,6 @@ export default function InterviewPage() {
             setAnswer("");
         } catch (error) {
             console.error("Submit answer error:", error);
-            // Fallback: move to next question even if network has a hiccup
             const updatedHistory = [
                 ...history,
                 {

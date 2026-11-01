@@ -860,6 +860,31 @@ const handleKeyDown = (e) => {
 
   
 
+  const handleProceedToNext = () => {
+    if (submissionModalData?.next_question) {
+      const nq = submissionModalData.next_question;
+      setQuestion(nq);
+      if (submissionModalData.next_difficulty) {
+        setDifficulty(submissionModalData.next_difficulty);
+      }
+      if (submissionModalData.question_number) {
+        setQuestionNumber(submissionModalData.question_number);
+      }
+      if (nq.starter_code) {
+        setCode(nq.starter_code);
+      } else {
+        setCode(STARTER_CODES[language] || STARTER_CODES.python);
+      }
+      setResult(null);
+      setError("");
+    }
+    setSubmissionModalData(null);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   const handleStopInterview = async () => {
     const currentUserId =
       userId ||
@@ -2550,7 +2575,7 @@ const handleKeyDown = (e) => {
                 
                   <div className="p-4 sm:p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
                     <button
-                      onClick={() => setSubmissionModalData(null)}
+                      onClick={handleProceedToNext}
                       className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-semibold transition shadow-md shadow-violet-200 flex items-center gap-2"
                     >
                       <span>Proceed to Next Question</span>
