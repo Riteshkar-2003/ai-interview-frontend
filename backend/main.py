@@ -557,7 +557,7 @@ def first_question(
         )
         raise HTTPException(
             status_code=500,
-            detail="Failed to generate first question"
+            detail=f"Failed to generate first question: {str(e)}"
         )
 
 class AnswerRequest(BaseModel):

@@ -37,3 +37,28 @@ llm = ChatGroq(
     temperature=0.7,
     api_key=groq_api_key
 )
+
+
+def invoke_llm_with_fallback(messages, temperature=0.7):
+    """
+    Invokes Groq with primary model ('llama-3.1-8b-instant').
+    If rate-limited or unavailable, seamlessly tries backup models.
+    """
+    candidate_models = [get_groq_model_name(), "llama-3.1-8b-instant", "llama3-8b-8192"]
+    candidate_models = list(dict.fromkeys([m for m in candidate_models if m]))
+
+    last_err = None
+    for m in candidate_models:
+        try:
+            chat = ChatGroq(
+                model=m,
+                temperature=temperature,
+                api_key=groq_api_key
+            )
+            return chat.invoke(messages)
+        except Exception as err:
+            last_err = err
+            print(f"[WARN] ChatGroq model '{m}' invocation failed: {err}")
+            continue
+
+    raise last_err or RuntimeError("All Groq LLM candidate models failed")
