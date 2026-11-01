@@ -14,13 +14,19 @@ if not groq_api_key:
 
 def get_groq_model_name() -> str:
     """
-    Returns a guaranteed valid Groq model name.
-    If MODEL_NAME is unset or contains OpenAI / deprecated identifiers
-    like 'openai/gpt-oss-120b', automatically falls back to 'llama-3.3-70b-versatile'.
+    Returns an active, universally supported Groq model.
+    'llama-3.1-8b-instant' is available on all Groq tiers (free and paid).
     """
     raw = (os.getenv("MODEL_NAME") or "").strip()
-    if not raw or "gpt-oss" in raw.lower() or raw.lower().startswith("openai/") or "120b" in raw.lower():
-        return "llama-3.3-70b-versatile"
+    if (
+        not raw
+        or "gpt-oss" in raw.lower()
+        or raw.lower().startswith("openai/")
+        or "120b" in raw.lower()
+        or "llama-3.3-70b" in raw.lower()
+        or "70b" in raw.lower()
+    ):
+        return "llama-3.1-8b-instant"
     return raw
 
 
