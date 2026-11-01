@@ -70,7 +70,7 @@ Scoring:
 """
 
     response = client.chat.completions.create(
-        model=os.getenv("MODEL_NAME"),
+        model=os.getenv("MODEL_NAME") or "llama-3.3-70b-versatile",
         messages=[
             {
                 "role": "system",

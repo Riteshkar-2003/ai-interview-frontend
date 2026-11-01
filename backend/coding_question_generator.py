@@ -404,7 +404,7 @@ Return exactly this JSON structure:
  
     try:
         response = client.chat.completions.create(
-            model=os.getenv("MODEL_NAME") or "openai/gpt-oss-120b",
+            model=os.getenv("MODEL_NAME") or "llama-3.3-70b-versatile",
             messages=[
                 {
                     "role": "system",
@@ -436,7 +436,7 @@ Return exactly this JSON structure:
         try:
             print("Retrying coding question generation with flexible plain JSON format...")
             retry_resp = client.chat.completions.create(
-                model=os.getenv("MODEL_NAME") or "openai/gpt-oss-120b",
+                model=os.getenv("MODEL_NAME") or "llama-3.3-70b-versatile",
                 messages=[
                     {
                         "role": "system",
