@@ -1,7 +1,38 @@
-export const API_URL =
-    process.env.NEXT_PUBLIC_API_URL ||
+const PRODUCTION_BACKEND_URL =
     "https://ai-interview-preparation-platform-6bjy.onrender.com";
-    
+
+/**
+ * Resolve the backend API URL at runtime.
+ *
+ * NEXT_PUBLIC_* variables are baked in at build time by Next.js.
+ * If Vercel has NEXT_PUBLIC_API_URL set to "http://localhost:8000"
+ * (a common mis-configuration), the deployed bundle would try to
+ * reach the user's own machine. This function detects that case at
+ * runtime and falls back to the real production backend.
+ */
+function resolveApiUrl() {
+    const configured = process.env.NEXT_PUBLIC_API_URL || "";
+
+    const isLocalUrl =
+        configured.includes("localhost") ||
+        configured.includes("127.0.0.1");
+
+    if (isLocalUrl && typeof window !== "undefined") {
+        const hostname = window.location.hostname;
+        const isLocalHost =
+            hostname === "localhost" || hostname === "127.0.0.1";
+        if (!isLocalHost) {
+            // Running on a deployed host (e.g. Vercel) but env var
+            // wrongly points to localhost — use the real backend.
+            return PRODUCTION_BACKEND_URL;
+        }
+    }
+
+    return configured || PRODUCTION_BACKEND_URL;
+}
+
+export const API_URL = resolveApiUrl();
+
 
 function formatErrorMessage(detail, fallback) {
     if (!detail) return fallback;
