@@ -121,14 +121,6 @@ export default function InterviewPage() {
             const nextDiff = newEvaluation.next_difficulty || difficulty;
             setDifficulty(nextDiff);
 
-            // If 10 questions answered, finish and view report automatically
-            if (updatedHistory.length >= 10) {
-                sessionStorage.setItem("interviewHistory", JSON.stringify(updatedHistory));
-                sessionStorage.setItem("resumeData", JSON.stringify(resumeData));
-                router.push("/report");
-                return;
-            }
-
             // 2. Seamlessly fetch next question without pausing or showing adaptive level
             const nextData = await getNextQuestion(
                 resumeData,
@@ -158,13 +150,6 @@ export default function InterviewPage() {
             ];
             setHistory(updatedHistory);
 
-            if (updatedHistory.length >= 10) {
-                sessionStorage.setItem("interviewHistory", JSON.stringify(updatedHistory));
-                sessionStorage.setItem("resumeData", JSON.stringify(resumeData));
-                router.push("/report");
-                return;
-            }
-
             setQuestion("Could you explain how you design and test modules for scalability and maintainability?");
             setQuestionNumber((prev) => prev + 1);
             setAnswer("");
@@ -174,10 +159,17 @@ export default function InterviewPage() {
     };
 
     const stopInterview = async () => {
-        if (history.length < 10) {
+        if (history.length === 0) {
             alert(
-                `Please answer at least 10 questions before stopping the interview. You have answered ${history.length} question(s).`
+                "Please answer and submit at least one question before stopping the interview."
             );
+            return;
+        }
+
+        const confirmed = window.confirm(
+            `You have completed ${history.length} question(s). Are you sure you want to stop the interview and view your performance report?`
+        );
+        if (!confirmed) {
             return;
         }
 
@@ -241,8 +233,8 @@ export default function InterviewPage() {
 
                     <div className="flex shrink-0 items-center gap-2 sm:gap-3">
                         <div className="rounded-full border border-violet-200 bg-white/80 px-3 py-1.5 text-xs shadow-sm sm:px-4 sm:py-2 sm:text-sm">
-                            <span className="text-slate-500">Q </span>
-                            <span className="font-semibold text-violet-600">{questionNumber} / 10</span>
+                            <span className="text-slate-500">Question </span>
+                            <span className="font-semibold text-violet-600">#{questionNumber}</span>
                         </div>
 
                         <motion.button
@@ -271,7 +263,7 @@ export default function InterviewPage() {
                             Interview Progress
                         </span>
                         <span className="font-semibold text-violet-600">
-                            Question {questionNumber} of 10
+                            Question #{questionNumber}
                         </span>
                     </div>
 
@@ -280,7 +272,7 @@ export default function InterviewPage() {
                             className="h-full rounded-full bg-gradient-to-r from-violet-600 to-indigo-600"
                             initial={{ width: 0 }}
                             animate={{
-                                width: `${Math.min(questionNumber * 10, 100)}%`,
+                                width: `${Math.min((history.length / 10) * 100, 100)}%`,
                             }}
                             transition={{ duration: 0.6 }}
                         />
@@ -288,7 +280,7 @@ export default function InterviewPage() {
 
                     <div className="mt-3 flex justify-between text-xs text-slate-400">
                         <span>Answered: {history.length}</span>
-                        <span>{Math.min(history.length * 10, 100)}% Completed</span>
+                        <span>{history.length >= 10 ? "10+ completed · Continue or Stop anytime" : `${10 - history.length} more to recommended 10`}</span>
                     </div>
                 </motion.div>
 
@@ -397,7 +389,7 @@ export default function InterviewPage() {
                                 className="rounded-xl sm:rounded-2xl border border-violet-100 bg-violet-50/60 p-4 sm:p-6"
                             >
                                 <p className="mb-2 sm:mb-3 text-xs font-semibold uppercase tracking-wider text-violet-500">
-                                    Question {questionNumber} of 10
+                                    Question #{questionNumber}
                                 </p>
 
                                 <h2 className="text-base sm:text-xl font-semibold leading-relaxed text-slate-800 md:text-2xl">
