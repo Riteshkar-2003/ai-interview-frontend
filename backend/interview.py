@@ -894,6 +894,7 @@ def generate_first_question(
   
     skills = list(resume_data.get("skills", [])) + list(resume_data.get("programming_languages", [])) + list(resume_data.get("technologies", []))
     rag_context = get_rag_context(skills=skills, difficulty=difficulty, top_k=4)
+    rag_section = f"RAG TECHNICAL KNOWLEDGE BASE CONTEXT:\n{rag_context}\n" if rag_context else ""
 
     prompt = f"""
 Start the technical interview.
@@ -907,7 +908,7 @@ Available sections:
 Starting difficulty:
 {difficulty}
 
-{f"RAG TECHNICAL KNOWLEDGE BASE CONTEXT:\n{rag_context}\n" if rag_context else ""}
+{rag_section}
 
 Instructions:
 - Use the candidate's skills and the concepts from the RAG knowledge base above to craft a high-quality interview question.
@@ -936,6 +937,7 @@ def analyze_answer(
 
  
     rag_context = retrieve_answer_analysis_knowledge(question, candidate_answer, top_k=3)
+    rag_section = f"RAG KNOWLEDGE BASE GROUND TRUTH REFERENCE:\n{rag_context}\n" if rag_context else ""
 
     prompt = f"""
 Evaluate the candidate's technical answer against the following RAG Technical Knowledge Base ground truth.
@@ -949,7 +951,7 @@ Candidate answer:
 Current difficulty:
 {current_difficulty}
 
-{f"RAG KNOWLEDGE BASE GROUND TRUTH REFERENCE:\n{rag_context}\n" if rag_context else ""}
+{rag_section}
 
 Analysis Guidelines:
 1. Correctness: Verify if the candidate's statements align with technical ground truth in the knowledge base.
@@ -1037,6 +1039,7 @@ def generate_next_question(
 
     skills = list(resume_data.get("skills", [])) + list(resume_data.get("programming_languages", []))
     rag_context = get_rag_context(skills=skills, difficulty=current_difficulty, query_text=str(next_section or ""), top_k=3)
+    rag_section = f"RAG TECHNICAL KNOWLEDGE BASE CONTEXT:\n{rag_context}\n" if rag_context else ""
 
     prompt = f"""
 Continue the technical interview.
@@ -1064,7 +1067,7 @@ Recent interview history (Stored Q&A list):
 Sections already covered:
 {compact_json(asked_sections)}
 
-{f"RAG TECHNICAL KNOWLEDGE BASE CONTEXT:\n{rag_context}\n" if rag_context else ""}
+{rag_section}
 
 Instructions:
 - Prefer the requested resume section and leverage concepts from the RAG knowledge base.
