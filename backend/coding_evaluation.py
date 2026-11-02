@@ -70,7 +70,7 @@ Scoring:
 10 = production-grade / all sample and hidden tests passed
 """
 
-    models_to_try = [get_groq_model_name(), "llama-3.1-8b-instant", "llama3-8b-8192"]
+    models_to_try = [get_groq_model_name(), "openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b", "llama-3.1-8b-instant"]
     models_to_try = list(dict.fromkeys([m for m in models_to_try if m]))
 
     content = ""

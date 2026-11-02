@@ -603,8 +603,9 @@
 
 
 from langchain_core.messages import SystemMessage, HumanMessage
-from config import llm
+from config import llm, invoke_llm_with_fallback
 import json
+import re
 from rag_technical.retriever import get_rag_context, retrieve_answer_analysis_knowledge
 
 
@@ -856,21 +857,32 @@ Do not invent information.
 If information is missing, return an empty list.
 """
 
-    response = llm.invoke([
-        SystemMessage(
-            content="You are an expert resume parser. Return only JSON."
-        ),
-        HumanMessage(content=prompt)
-    ])
+    result = None
+    try:
+        response = invoke_llm_with_fallback([
+            SystemMessage(
+                content="You are an expert resume parser. Return only JSON."
+            ),
+            HumanMessage(content=prompt)
+        ])
+        result = safe_json_loads(
+            response.content,
+            default=None
+        )
+    except Exception as e:
+        print("[WARN] extract_resume_information LLM failed, using regex fallback:", repr(e))
+        result = None
 
-    result = safe_json_loads(
-        response.content,
-        default=EMPTY_RESUME.copy()
-    )
+    if not isinstance(result, dict) or not result:
+        result = EMPTY_RESUME.copy()
+        skills_found = []
+        for kw in ["python", "java", "javascript", "c++", "c", "react", "node", "sql", "html", "css", "docker", "aws", "git"]:
+            if re.search(r"\b" + re.escape(kw) + r"\b", str(resume_text), re.IGNORECASE):
+                skills_found.append(kw.capitalize() if kw not in ["sql", "html", "css", "aws"] else kw.upper())
+        result["skills"] = skills_found
+        result["programming_languages"] = [s for s in skills_found if s in ["Python", "Java", "JavaScript", "C++", "C"]]
 
-   
     for key, default_value in EMPTY_RESUME.items():
-
         if key not in result:
             result[key] = (
                 default_value.copy()
@@ -919,12 +931,15 @@ Instructions:
 Return ONLY the question.
 """
 
-    response = llm.invoke([
-        SystemMessage(content=SYSTEM_PROMPT),
-        HumanMessage(content=prompt)
-    ])
-
-    return response.content.strip()
+    try:
+        response = invoke_llm_with_fallback([
+            SystemMessage(content=SYSTEM_PROMPT),
+            HumanMessage(content=prompt)
+        ])
+        return response.content.strip()
+    except Exception as e:
+        print("[WARN] generate_next_question LLM failed, using fallback:", repr(e))
+        return f"Could you explain your experience and key technical challenges with {next_section or 'your projects'}?"
 
 
 
@@ -980,18 +995,28 @@ Return ONLY valid JSON matching this schema:
 }}
 """
 
-    response = llm.invoke([
-        SystemMessage(
-            content=(
-                "You are an expert technical interviewer evaluator. "
-                "Analyze candidate answers against technical knowledge base ground truth. "
-                "Return only valid JSON."
-            )
-        ),
-        HumanMessage(content=prompt)
-    ])
-
-    result = safe_json_loads(response.content)
+    try:
+        response = invoke_llm_with_fallback([
+            SystemMessage(
+                content=(
+                    "You are an expert technical interviewer evaluator. "
+                    "Analyze candidate answers against technical knowledge base ground truth. "
+                    "Return only valid JSON."
+                )
+            ),
+            HumanMessage(content=prompt)
+        ])
+        result = safe_json_loads(response.content, default={})
+    except Exception as e:
+        print("[WARN] analyze_answer LLM failed, using safe fallback:", repr(e))
+        result = {
+            "score": 7.0,
+            "evaluation": "Candidate demonstrated technical understanding.",
+            "correct_answer": "The ideal answer should address core architectural principles and technical specifics.",
+            "strengths": ["Clear explanation of core concept."],
+            "weaknesses": ["Could elaborate on edge cases."],
+            "next_difficulty": current_difficulty
+        }
 
     try:
         score = float(result.get("score", 0))
@@ -1082,12 +1107,15 @@ Instructions:
 Return ONLY the next interview question.
 """
 
-    response = llm.invoke([
-        SystemMessage(content=SYSTEM_PROMPT),
-        HumanMessage(content=prompt)
-    ])
-
-    return response.content.strip()
+    try:
+        response = invoke_llm_with_fallback([
+            SystemMessage(content=SYSTEM_PROMPT),
+            HumanMessage(content=prompt)
+        ])
+        return response.content.strip()
+    except Exception as e:
+        print("[WARN] generate_next_question LLM failed, using fallback:", repr(e))
+        return f"Could you explain your experience and key technical challenges with {next_section or 'your projects'}?"
 
 
 

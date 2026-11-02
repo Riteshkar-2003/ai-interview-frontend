@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 
 
+from pathlib import Path
+env_path = Path(__file__).resolve().parent / ".env"
+load_dotenv(dotenv_path=env_path)
 load_dotenv()
 
 groq_api_key = os.getenv("GROQ_API_KEY")
@@ -14,20 +17,17 @@ if not groq_api_key:
 
 def get_groq_model_name() -> str:
     """
-    Returns an active, universally supported Groq model.
-    'llama-3.1-8b-instant' is available on all Groq tiers (free and paid).
+    Returns the primary active Groq model configured for this account.
+    Normalizes 'gpt-oss-120b' -> 'openai/gpt-oss-120b'.
     """
     raw = (os.getenv("MODEL_NAME") or "").strip()
-    if (
-        not raw
-        or "gpt-oss" in raw.lower()
-        or raw.lower().startswith("openai/")
-        or "120b" in raw.lower()
-        or "llama-3.3-70b" in raw.lower()
-        or "70b" in raw.lower()
-    ):
-        return "llama-3.1-8b-instant"
-    return raw
+    if raw.lower() == "gpt-oss-120b":
+        return "openai/gpt-oss-120b"
+    if raw.lower() == "gpt-oss-20b":
+        return "openai/gpt-oss-20b"
+    if raw:
+        return raw
+    return "openai/gpt-oss-120b"
 
 
 model_name = get_groq_model_name()
@@ -41,10 +41,17 @@ llm = ChatGroq(
 
 def invoke_llm_with_fallback(messages, temperature=0.7):
     """
-    Invokes Groq with primary model ('llama-3.1-8b-instant').
-    If rate-limited or unavailable, seamlessly tries backup models.
+    Invokes Groq with primary model and automatic fallback chain.
     """
-    candidate_models = [get_groq_model_name(), "llama-3.1-8b-instant", "llama3-8b-8192"]
+    primary = get_groq_model_name()
+    candidate_models = [
+        primary,
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b",
+        "qwen/qwen3.8-27b",
+        "llama-3.1-8b-instant",
+        "llama3-8b-8192"
+    ]
     candidate_models = list(dict.fromkeys([m for m in candidate_models if m]))
 
     last_err = None
